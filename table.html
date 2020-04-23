@@ -1,0 +1,165 @@
+<!Doctype html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<style>
+
+.red_cell {
+  background: red;
+}
+.white_cell{
+  background: #fff;
+}
+
+</style>
+<script>
+var scale=1;
+var spc = "";
+var r_c;
+var w_matrix;
+for(var s=0;s<scale;s++)
+  spc+=" ";
+function _getTextBoxContent(){
+  var original_text = $('#invoiceText').val();
+  var lines = original_text.split("\n")
+  var word_level_split = [];
+  max=0;
+  for(var i=0;i<lines.length;i++){
+    temp = lines[i].split("")
+    word_level_split.push(temp);
+    if( temp.length > max ){
+      max = temp.length;
+    }
+  }
+  return [lines.length,max,word_level_split];
+}
+function _drawBoard(){
+
+  r_c = _getTextBoxContent();
+  console.log(r_c)
+  console.log(r_c[2])
+  var temp="";
+  var flag = false;
+  w_matrix=r_c[2];
+  for(var i=0;i<r_c[0];i++){
+    temp+="<tr>";
+    flag = (flag) ? false : true;
+    for(var j=0;j<r_c[1];j++){
+        color = ( flag  ) ? "#000" : "#fff";  
+        
+        word = w_matrix[i][j];
+        //console.log("before =",word, " word_length= ")
+        if(word==undefined || word==null || word==""|| word==" "){
+
+          word=" &nbsp; &nbsp; &nbsp; ";
+        }
+
+        //console.log("after =",word,"\n\n")
+        console.log(i+"_"+j);
+        temp+="<td id='block"+(i+'_'+j)+"' onclick=changeBG(this) >"+word+"</td>"
+
+    }
+    temp+="</tr>";
+    
+  }
+  document.getElementById('board').innerHTML=temp;
+  
+}
+function changeBG(elem){
+  $(elem).toggleClass("red_cell");
+}
+function _drawLineBorder(){
+  console.log("border");
+  for(var i=0;i<r_c[1];i++){
+    counter=0;
+    flag=false;
+
+    for(var j=0;j<r_c[0];j++){
+      
+      //console.log($('#block'+(j+""+i)).text(), $('#block'+(j+""+i)).text().length);
+      
+      if( $('#block'+(j+"_"+i)).text()== "       "){
+        counter+=1;
+      
+      }
+    }
+    //console.log();
+    /*
+    console.log(flag)
+    if(flag){
+      console.log("came");
+      
+      /*for(var k=0;k<r_c[0];k++){
+        $( '#block'+(j+''+i) ).css('background-color','black')
+      }
+    }*/
+    if(counter==r_c[0]){
+      console.log("Came")
+      for(var k=0;k<r_c[0];k++){
+        //$('#block00').css('background-color','black');
+        //console.log('#block'+(k+''+i));
+        $( '#block'+(k+'_'+i) ).css('background-color','#777')
+      }
+    }
+  }
+}
+function _assembleContent(){
+  var csv_text=[];
+  var temp="";
+  for(var i=0;i<r_c[0];i++){
+    temp+="<tr><td>"
+    lastChar="<Default_Preserve>"
+    for(var j=0;j<r_c[1];j++){
+      if($( '#block'+(i+'_'+j) ).css('backgroundColor')=="rgb(119, 119, 119)") {
+          if(lastChar!=","){
+            temp+="</td><td>"
+          }
+          lastChar=","
+      }else  { 
+        if( $('#block'+(i+"_"+j)).text()== "       " )
+          temp+=" ";//$('#block'+(i+'_'+j)).text();
+        else
+          temp+=$('#block'+(i+'_'+j)).text();
+        lastChar="-";
+      }
+    //  lastChar=
+    }
+   
+    //csv_text.push(temp);
+
+  }
+   document.getElementById('board').innerHTML=temp;
+   $('#board').addClass('table-striped table-dark')
+
+}
+</script>
+</head>
+
+<body >
+    <div >
+      <table id="board" class="table table-sm" border="1">
+
+      </table>
+    </div>
+    <div>
+      <nav class="navbar fixed-bottom   navbar-dark bg-dark">
+        
+<div class="input-group mb-3">
+  <textarea  class="form-control" id="invoiceText" placeholder="Enter Text" aria-label="Text" aria-describedby="basic-addon2"></textarea>
+  <div class="input-group-append">
+    <button class="btn  btn-danger" type="button" onclick="_drawBoard()">Draw Table</button>
+    <button class="btn btn-success" type="button" onclick="_drawLineBorder()">Separate</button>
+    <button class="btn btn-primary" type="button" onclick="_assembleContent()">Assemble</button>
+  </div>
+</div>
+        <!--<textarea id="invoiceText" class=""></textarea>-->
+      </div>
+  </nav>
+      
+    </div>
+  </body>
+</html>
